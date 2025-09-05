@@ -1,26 +1,36 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "java",
-            "name": "Launch Minecraft Alpha",
-            "request": "launch",
-            "mainClass": "org.mcphackers.launchwrapper.Launch",
-            "vmArgs": "-Djava.library.path=${workspaceFolder}/libraries/natives",
-            "args": [
-                "--username", "Player",
-                "--session", "-",
-                "--version", "a1.1.2_01",
-                "--gameDir", "${workspaceFolder}/minecraft/game",
-                "--assetsDir", "${workspaceFolder}/minecraft/game/assets",
-                "--assetIndex", "a1.0.14",
-                "--accessToken", "-",
-                "--userProperties", "{}",
-                "--userType", "legacy",
-                "--versionType", "release",
-                "--skinProxy", "pre-b1.9-pre4"
-            ],
-            "classPaths": [
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Minecraft Alpha Client",
+      "request": "launch",
+      "mainClass": "org.mcphackers.launchwrapper.Launch",
+      "vmArgs": "-Djava.library.path=${workspaceFolder}/libraries/natives",
+      "args": [
+        "--username", "Player",
+        "--session", "-",
+        "--version", "a1.1.2_01",
+        "--gameDir", "${workspaceFolder}/minecraft/game",
+        "--assetsDir", "${workspaceFolder}/minecraft/game/assets",
+        "--assetIndex", "a1.0.14",
+        "--userType", "legacy"
+      ],
+      "classPaths": [
+        "${workspaceFolder}/minecraft/jars/deobfuscated.jar",
+        "${workspaceFolder}/libraries/*"
+      ]
+    },
+    {
+      "type": "java",
+      "name": "Minecraft Server",
+      "request": "launch",
+      "mainClass": "org.mcphackers.launchwrapper.Launch",
+      "args": [
+        "--nogui"
+      ],
+
+    "classPaths": [
                 "${workspaceFolder}/src",
                 "${workspaceFolder}/bin",
                 "${workspaceFolder}/libraries/net/java/jinput/jinput/2.0.5/jinput-2.0.5.jar",
