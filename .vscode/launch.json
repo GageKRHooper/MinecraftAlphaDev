@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch Minecraft Alpha",
+            "request": "launch",
+            "mainClass": "org.mcphackers.launchwrapper.Launch",
+            "projectName": "Minecraft Client",
+            "vmArgs": "-Djava.library.path=${workspaceFolder}/libraries/natives",
+            "args": "--username Player --session - --version a1.1.2_01 --gameDir ${workspaceFolder}/minecraft/game --assetsDir ${workspaceFolder}/minecraft/game/assets --assetIndex a1.0.14 --accessToken - --userProperties {} --userType legacy --versionType release --skinProxy pre-b1.9-pre4",
+        }
+    ]
+}
