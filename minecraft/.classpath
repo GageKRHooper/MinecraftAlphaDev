@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
     <!-- Use JDK 8 container -->
-    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk8"/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 
     <!-- Source folder -->
     <classpathentry kind="src" path="src">
@@ -25,7 +25,7 @@
     <classpathentry kind="lib" path="libraries/org/json/json/20230311/json-20230311.jar"/>
     <classpathentry kind="lib" path="libraries/org/ow2/asm/asm/9.7/asm-9.7.jar"/>
     <classpathentry kind="lib" path="libraries/org/ow2/asm/asm-tree/9.7/asm-tree-9.7.jar"/>
-    <classpathentry kind="lib" path="minecraft/jars/deobfuscated.jar"/>
+    <classpathentry kind="lib" path="minecraft_server/jars/deobfuscated.jar"/>
 
     <!-- Output folder -->
     <classpathentry kind="output" path="bin"/>
