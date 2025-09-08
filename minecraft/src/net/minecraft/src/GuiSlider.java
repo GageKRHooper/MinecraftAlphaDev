@@ -4,63 +4,88 @@ import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 
 public class GuiSlider extends GuiButton {
-	public float sliderValue = 1.0F;
-	public boolean dragging = false;
-	private int idFloat = 0;
+    public float sliderValue = 1.0F;
+    public boolean dragging = false;
+    private int idFloat = 0;
 
-	public GuiSlider(int var1, int var2, int var3, int var4, String var5, float var6) {
-		super(var1, var2, var3, 150, 20, var5);
-		this.idFloat = var4;
-		this.sliderValue = var6;
-	}
+    private final int KNOB_SIZE = 16;
+    public float offsetX = 0;
+    public float offsetY = 0;
 
-	protected int getHoverState(boolean var1) {
-		return 0;
-	}
+    public GuiSlider(int id, int x, int y, int idFloat, String displayString, float value) {
+        super(id, x, y, 150, 20, displayString);
+        this.idFloat = idFloat;
+        this.sliderValue = value;
+    }
 
-	protected void mouseDragged(Minecraft var1, int var2, int var3) {
-		if(this.visible) {
-			if(this.dragging) {
-				this.sliderValue = (float)(var2 - (this.xPosition + 4)) / (float)(this.width - 8);
-				if(this.sliderValue < 0.0F) {
-					this.sliderValue = 0.0F;
-				}
+    @Override
+    protected int getHoverState(boolean mouseOver) {
+        return 0; // no hover effect for track
+    }
 
-				if(this.sliderValue > 1.0F) {
-					this.sliderValue = 1.0F;
-				}
+    @Override
+    public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+        if (super.mousePressed(mc, mouseX, mouseY)) {
+            updateSliderValue(mc, mouseX);
+            this.dragging = true;
+            return true;
+        }
+        return false;
+    }
 
-				var1.options.setOptionFloatValue(this.idFloat, this.sliderValue);
-				this.displayString = var1.options.getOptionDisplayString(this.idFloat);
-			}
+    @Override
+    public void mouseReleased(int mouseX, int mouseY) {
+        this.dragging = false;
+    }
 
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-			this.drawTexturedModalRect(this.xPosition + (int)(this.sliderValue * (float)(this.width - 8)), this.yPosition, 0, 66, 4, 20);
-			this.drawTexturedModalRect(this.xPosition + (int)(this.sliderValue * (float)(this.width - 8)) + 4, this.yPosition, 196, 66, 4, 20);
-		}
-	}
+    @Override
+    protected void mouseDragged(Minecraft mc, int mouseX, int mouseY) {
+        if (this.visible && this.dragging) {
+            updateSliderValue(mc, mouseX);
+        }
 
-	public boolean mousePressed(Minecraft var1, int var2, int var3) {
-		if(super.mousePressed(var1, var2, var3)) {
-			this.sliderValue = (float)(var2 - (this.xPosition + 4)) / (float)(this.width - 8);
-			if(this.sliderValue < 0.0F) {
-				this.sliderValue = 0.0F;
-			}
+        if (this.visible) {
+            // Base knob position relative to the button/track
+            int knobX = this.xPosition + (int) (this.sliderValue * (this.width - KNOB_SIZE));
+            int knobY = this.yPosition + (this.height - KNOB_SIZE) / 2;
 
-			if(this.sliderValue > 1.0F) {
-				this.sliderValue = 1.0F;
-			}
+            // Small visual adjustment to center the knob better
+            int shiftX = 0;
+            int shiftY = 0;
 
-			var1.options.setOptionFloatValue(this.idFloat, this.sliderValue);
-			this.displayString = var1.options.getOptionDisplayString(this.idFloat);
-			this.dragging = true;
-			return true;
-		} else {
-			return false;
-		}
-	}
+            // Parallax offsets
+            float targetX = (mouseX - (this.xPosition + this.width / 2f)) * 0.02f;
+            float targetY = (mouseY - (this.yPosition + this.height / 2f)) * 0.02f;
+            offsetX += (targetX - offsetX) * 0.1f;
+            offsetY += (targetY - offsetY) * 0.1f;
 
-	public void mouseReleased(int var1, int var2) {
-		this.dragging = false;
-	}
+            GL11.glPushMatrix();
+            GL11.glTranslatef(offsetX, offsetY, 0);
+
+            mc.renderEngine.bindTexture(mc.renderEngine.getTexture("/terrain.png"));
+            GL11.glColor4f(1F, 1F, 1F, 1F);
+
+            // Draw knob with shift applied
+            this.drawTexturedModalRect(knobX + shiftX, knobY + shiftY, (6*16), 0, KNOB_SIZE, KNOB_SIZE);
+
+            GL11.glPopMatrix();
+        }
+    }
+
+    @Override
+    public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+        if (this.visible) {
+            super.drawButton(mc, mouseX, mouseY); // draw the track first
+            this.mouseDragged(mc, mouseX, mouseY); // draw the knob on top
+        }
+    }
+
+    private void updateSliderValue(Minecraft mc, int mouseX) {
+        this.sliderValue = (float) (mouseX - this.xPosition) / (float) (this.width - KNOB_SIZE);
+        if (this.sliderValue < 0F) this.sliderValue = 0F;
+        if (this.sliderValue > 1F) this.sliderValue = 1F;
+
+        mc.options.setOptionFloatValue(this.idFloat, this.sliderValue);
+        this.displayString = mc.options.getOptionDisplayString(this.idFloat);
+    }
 }
