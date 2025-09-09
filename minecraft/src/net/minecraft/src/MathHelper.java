@@ -55,4 +55,10 @@ public class MathHelper {
 		}
 
 	}
+
+	public static int ceiling_float_int(float value) {
+	    int i = (int) value;
+	    return (value > i) ? i + 1 : i;
+	}
+
 }

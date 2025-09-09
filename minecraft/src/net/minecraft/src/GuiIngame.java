@@ -11,227 +11,335 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 public class GuiIngame extends Gui {
-    private static RenderItem itemRenderer = new RenderItem();
-    private List chatMessageList = new ArrayList();
-    private Random rand = new Random();
-    private Minecraft mc;
-    private int updateCounter = 0;
-    private String recordPlaying = "";
-    private int recordPlayingUpFor = 0;
+	private static RenderItem itemRenderer = new RenderItem();
+	private List chatMessageList = new ArrayList();
+	private Random rand = new Random();
+	private Minecraft mc;
+	public String testMessage = null;
+	private int updateCounter = 0;
+	private String recordPlaying = "";
+	private int recordPlayingUpFor = 0;
+	public float damageGuiPartialTime;
+	float prevVignetteBrightness = 1.0F;
 
-    // Required for PlayerControllerSP
-    public float damageGuiPartialTime;
-    float prevVignetteBrightness = 1.0F;
+	public GuiIngame(Minecraft var1) {
+		this.mc = var1;
+	}
 
-    public GuiIngame(Minecraft mc) {
-        this.mc = mc;
-    }
+	public void renderGameOverlay(float var1, boolean var2, int var3, int var4) {
+		ScaledResolution var5 = new ScaledResolution(this.mc.displayWidth, this.mc.displayHeight);
+		int var6 = var5.getScaledWidth();
+		int var7 = var5.getScaledHeight();
+		FontRenderer var8 = this.mc.fontRenderer;
+		this.mc.entityRenderer.setupOverlayRendering();
+		GL11.glEnable(GL11.GL_BLEND);
+		if(this.mc.options.fancyGraphics) {
+			this.renderVignette(this.mc.thePlayer.getBrightness(var1), var6, var7);
+		}
 
-    public void renderGameOverlay(float partialTicks, boolean debugInfo, int width, int height) {
-        ScaledResolution res = new ScaledResolution(mc.displayWidth, mc.displayHeight);
-        int sw = res.getScaledWidth();
-        int sh = res.getScaledHeight();
-        FontRenderer font = mc.fontRenderer;
-        mc.entityRenderer.setupOverlayRendering();
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/gui/gui.png"));
+		InventoryPlayer var9 = this.mc.thePlayer.inventory;
+		this.zLevel = -90.0F;
+		this.drawTexturedModalRect(var6 / 2 - 91, var7 - 22, 0, 0, 182, 22);
+		this.drawTexturedModalRect(var6 / 2 - 91 - 1 + var9.currentItem * 20, var7 - 22 - 1, 0, 22, 24, 22);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/gui/icons.png"));
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_ONE_MINUS_DST_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR);
+		this.drawTexturedModalRect(var6 / 2 - 7, var7 / 2 - 7, 0, 0, 16, 16);
+		GL11.glDisable(GL11.GL_BLEND);
+		boolean var10 = this.mc.thePlayer.heartsLife / 3 % 2 == 1;
+		if(this.mc.thePlayer.heartsLife < 10) {
+			var10 = false;
+		}
 
-        GL11.glEnable(GL11.GL_BLEND);
-        if (mc.options.fancyGraphics) {
-            renderVignette(mc.thePlayer.getBrightness(partialTicks), sw, sh);
-        }
+		int var11 = this.mc.thePlayer.health;
+		int var12 = this.mc.thePlayer.prevHealth;
+		this.rand.setSeed((long)(this.updateCounter * 312871));
+		int var13;
+		int var14;
+		int var15;
+		if(this.mc.playerController.shouldDrawHUD()) {
+			var13 = this.mc.thePlayer.getPlayerArmorValue();
 
-        // Draw hotbar
-        GL11.glColor4f(1f, 1f, 1f, 1f);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/gui/gui.png"));
-        InventoryPlayer inv = mc.thePlayer.inventory;
-        this.zLevel = -90.0F;
-        drawTexturedModalRect(sw / 2 - 91, sh - 22, 0, 0, 182, 22);
-        drawTexturedModalRect(sw / 2 - 91 - 1 + inv.currentItem * 20, sh - 22 - 1, 0, 22, 24, 22);
+			int var16;
+			for(var14 = 0; var14 < 10; ++var14) {
+				var15 = var7 - 32;
+				if(var13 > 0) {
+					var16 = var6 / 2 + 91 - var14 * 8 - 9;
+					if(var14 * 2 + 1 < var13) {
+						this.drawTexturedModalRect(var16, var15, 34, 9, 9, 9);
+					}
 
-        // Crosshair
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/gui/icons.png"));
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_ONE_MINUS_DST_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR);
-        drawTexturedModalRect(sw / 2 - 7, sh / 2 - 7, 0, 0, 16, 16);
-        GL11.glDisable(GL11.GL_BLEND);
+					if(var14 * 2 + 1 == var13) {
+						this.drawTexturedModalRect(var16, var15, 25, 9, 9, 9);
+					}
 
-     // F3 Overlay
-        if (Keyboard.isKeyDown(Keyboard.KEY_F3)) {
-            // Title & Debug info
-            font.drawStringWithShadow("AlphaOverhaul v0.0.1 (" + mc.debug + ")", 2, 2, 0xFFFFFF);
-            font.drawStringWithShadow(mc.debugInfoRenders(), 2, 12, 0xFFFFFF);
-            font.drawStringWithShadow(mc.getEntityDebug(), 2, 22, 0xFFFFFF);
-            font.drawStringWithShadow(mc.debugInfoEntities(), 2, 32, 0xFFFFFF);
+					if(var14 * 2 + 1 > var13) {
+						this.drawTexturedModalRect(var16, var15, 16, 9, 9, 9);
+					}
+				}
 
-            // Memory usage
-            long maxMem = Runtime.getRuntime().maxMemory();
-            long totalMem = Runtime.getRuntime().totalMemory();
-            long freeMem = Runtime.getRuntime().freeMemory();
-            long used = totalMem - freeMem;
-            String mem = String.format("Used memory: %d%% (%dMB) of %dMB", used * 100 / maxMem, used / 1024 / 1024, maxMem / 1024 / 1024);
-            font.drawString(mem, sw - font.getStringWidth(mem) - 2, 2, 0xE0E0E0);
-            String allocated = String.format("Allocated memory: %dMB", totalMem / 1024 / 1024);
-            font.drawString(allocated, sw - font.getStringWidth(allocated) - 2, 12, 0xE0E0E0);
+				byte var25 = 0;
+				if(var10) {
+					var25 = 1;
+				}
 
-            // Player coordinates
-            int px = MathHelper.floor_double(mc.thePlayer.posX);
-            int py = MathHelper.floor_double(mc.thePlayer.posY);
-            int pz = MathHelper.floor_double(mc.thePlayer.posZ);
-            font.drawStringWithShadow("XYZ: " + px + ", " + py + ", " + pz, 2, 42, 0xFFFFFF);
+				int var17 = var6 / 2 - 91 + var14 * 8;
+				if(var11 <= 4) {
+					var15 += this.rand.nextInt(2);
+				}
 
-            // Chunk coordinates
-            int cx = px >> 4;
-            int cz = pz >> 4;
-            font.drawStringWithShadow("Chunk: " + cx + ", " + cz, 2, 52, 0xFFFFFF);
+				this.drawTexturedModalRect(var17, var15, 16 + var25 * 9, 0, 9, 9);
+				if(var10) {
+					if(var14 * 2 + 1 < var12) {
+						this.drawTexturedModalRect(var17, var15, 70, 0, 9, 9);
+					}
 
-            // Facing (cardinal directions)
-            float yaw = mc.thePlayer.rotationYaw % 360;
-            if (yaw < 0) yaw += 360;
-            String facing = "Unknown";
-            if (yaw >= 315 || yaw < 45) facing = "South";
-            else if (yaw >= 45 && yaw < 135) facing = "West";
-            else if (yaw >= 135 && yaw < 225) facing = "North";
-            else if (yaw >= 225 && yaw < 315) facing = "East";
-            font.drawStringWithShadow("Facing: " + facing + " (" + MathHelper.floor_float(yaw) + "°)", 2, 62, 0xFFFFFF);
+					if(var14 * 2 + 1 == var12) {
+						this.drawTexturedModalRect(var17, var15, 79, 0, 9, 9);
+					}
+				}
 
-            // Block light and sky light
-            int blockLight = mc.theWorld.getBlockLightValue(px, py, pz);   // light from torches, etc.
-            float brightness = mc.theWorld.getBrightness(px, py, pz);  // combined light including sky
-            font.drawStringWithShadow("Block Light: " + blockLight + " | Brightness: " + String.format("%.2f", brightness), 2, 72, 0xFFFFFF);
+				if(var14 * 2 + 1 < var11) {
+					this.drawTexturedModalRect(var17, var15, 52, 0, 9, 9);
+				}
 
-            // FPS
-            font.drawStringWithShadow(mc.debug, 2, 82, 0xFFFFFF);
-        } else {
-            font.drawStringWithShadow("AlphaOverhaul v0.0.1 Client Test", 2, 2, 0xFFFFFF);
-        }
+				if(var14 * 2 + 1 == var11) {
+					this.drawTexturedModalRect(var17, var15, 61, 0, 9, 9);
+				}
+			}
 
-        // Record playing
-        if (recordPlayingUpFor > 0) {
-            float fade = (float) recordPlayingUpFor - partialTicks;
-            int alpha = (int) (fade * 256.0F / 20.0F);
-            alpha = Math.min(255, alpha);
-            if (alpha > 0) {
-                GL11.glPushMatrix();
-                GL11.glTranslatef(sw / 2, sh - 48, 0f);
-                GL11.glEnable(GL11.GL_BLEND);
-                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-                int color = Color.HSBtoRGB(fade / 50f, 0.7f, 0.6f) & 0xFFFFFF;
-                font.drawString(recordPlaying, -font.getStringWidth(recordPlaying) / 2, -4, color + (alpha << 24));
-                GL11.glDisable(GL11.GL_BLEND);
-                GL11.glPopMatrix();
-            }
-        }
+			if(this.mc.thePlayer.isInsideOfMaterial(Material.water)) {
+				var14 = (int)Math.ceil((double)(this.mc.thePlayer.air - 2) * 10.0D / 300.0D);
+				var15 = (int)Math.ceil((double)this.mc.thePlayer.air * 10.0D / 300.0D) - var14;
 
-        // Chat messages
-        byte maxChat = 10;
-        boolean chatFocused = mc.currentScreen instanceof GuiChat;
-        if (chatFocused) maxChat = 20;
+				for(var16 = 0; var16 < var14 + var15; ++var16) {
+					if(var16 < var14) {
+						this.drawTexturedModalRect(var6 / 2 - 91 + var16 * 8, var7 - 32 - 9, 16, 18, 9, 9);
+					} else {
+						this.drawTexturedModalRect(var6 / 2 - 91 + var16 * 8, var7 - 32 - 9, 25, 18, 9, 9);
+					}
+				}
+			}
+		}
 
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-        GL11.glPushMatrix();
-        GL11.glTranslatef(0f, sh - 48, 0f);
+		GL11.glDisable(GL11.GL_BLEND);
+		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+		GL11.glPushMatrix();
+		GL11.glRotatef(180.0F, 1.0F, 0.0F, 0.0F);
+		RenderHelper.enableStandardItemLighting();
+		GL11.glPopMatrix();
 
-        for (int i = 0; i < chatMessageList.size() && i < maxChat; i++) {
-            ChatLine line = (ChatLine) chatMessageList.get(i);
-            if (line.updateCounter < 200 || chatFocused) {
-                double opacity = 1.0 - (double) line.updateCounter / 200.0;
-                opacity = Math.max(0, Math.min(1, opacity)) * Math.max(0, Math.min(1, opacity));
-                int alpha = (int) (255 * opacity);
-                if (chatFocused) alpha = 255;
-                if (alpha > 0) {
-                    int y = -i * 9;
-                    drawRect(2, y - 1, 2 + 320, y + 8, alpha / 2 << 24);
-                    font.drawStringWithShadow(line.message, 2, y, 0xFFFFFF + (alpha << 24));
-                }
-            }
-        }
+		for(var13 = 0; var13 < 9; ++var13) {
+			var14 = var6 / 2 - 90 + var13 * 20 + 2;
+			var15 = var7 - 16 - 3;
+			this.renderInventorySlot(var13, var14, var15, var1);
+		}
 
-        GL11.glPopMatrix();
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-        GL11.glDisable(GL11.GL_BLEND);
+		RenderHelper.disableStandardItemLighting();
+		GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+		String var21;
+		
+		// F3 Overlay
+		if (Keyboard.isKeyDown(Keyboard.KEY_F3)) {
+		    FontRenderer font = this.mc.fontRenderer;
+		    ScaledResolution sr = new ScaledResolution(this.mc.displayWidth, this.mc.displayHeight);
+		    int sw = sr.getScaledWidth();
+		    
+		    // Title
+		    font.drawStringWithShadow("AlphaOverhaul v0.0.1", 2, 2, 0xFFFFFF);
 
-        // Hotbar items
-        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-        GL11.glPushMatrix();
-        GL11.glRotatef(180f, 1f, 0f, 0f);
-        RenderHelper.enableStandardItemLighting();
-        GL11.glPopMatrix();
+		    // Memory usage
+		    long maxMem = Runtime.getRuntime().maxMemory();
+		    long totalMem = Runtime.getRuntime().totalMemory();
+		    long freeMem = Runtime.getRuntime().freeMemory();
+		    long used = totalMem - freeMem;
+		    String mem = String.format("Used memory: %d%% (%dMB) of %dMB", used * 100 / maxMem, used / 1024 / 1024, maxMem / 1024 / 1024);
+		    font.drawStringWithShadow(mem, sw - font.getStringWidth(mem) - 2, 2, 0xE0E0E0);
 
-        for (int i = 0; i < 9; i++) {
-            int x = sw / 2 - 90 + i * 20 + 2;
-            int y = sh - 16 - 3;
-            renderInventorySlot(i, x, y, partialTicks);
-        }
+		    // Player coordinates
+		    int px = MathHelper.floor_double(mc.thePlayer.posX);
+		    int py = MathHelper.floor_double(mc.thePlayer.posY);
+		    int pz = MathHelper.floor_double(mc.thePlayer.posZ);
+		    font.drawStringWithShadow("XYZ: " + px + ", " + py + ", " + pz, 2, 12, 0xFFFFFF);
 
-        RenderHelper.disableStandardItemLighting();
-        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-    }
+		    // Chunk coordinates
+		    int cx = px >> 4;
+		    int cz = pz >> 4;
+		    font.drawStringWithShadow("Chunk: " + cx + ", " + cz, 2, 22, 0xFFFFFF);
 
-    private void renderVignette(float brightness, int width, int height) {
-        brightness = 1f - brightness;
-        brightness = Math.max(0f, Math.min(1f, brightness));
-        this.prevVignetteBrightness += (brightness - this.prevVignetteBrightness) * 0.01f;
+		    // Facing
+		    float yaw = mc.thePlayer.rotationYaw % 360;
+		    if (yaw < 0) yaw += 360;
+		    String facing = "Unknown";
+		    if (yaw >= 315 || yaw < 45) facing = "South";
+		    else if (yaw >= 45 && yaw < 135) facing = "West";
+		    else if (yaw >= 135 && yaw < 225) facing = "North";
+		    else if (yaw >= 225 && yaw < 315) facing = "East";
+		    font.drawStringWithShadow("Facing: " + facing + " (" + MathHelper.floor_float(yaw) + "°)", 2, 32, 0xFFFFFF);
 
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(false);
-        GL11.glBlendFunc(GL11.GL_ZERO, GL11.GL_ONE_MINUS_SRC_COLOR);
-        GL11.glColor4f(this.prevVignetteBrightness, this.prevVignetteBrightness, this.prevVignetteBrightness, 1f);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/misc/vignette.png"));
+		    // Light
+		    int blockLight = mc.theWorld.getBlockLightValue(px, py, pz);
+		    float brightness = mc.theWorld.getBrightness(px, py, pz);
+		    font.drawStringWithShadow("Block Light: " + blockLight + " | Brightness: " + String.format("%.2f", brightness), 2, 42, 0xFFFFFF);
 
-        Tessellator tess = Tessellator.instance;
-        tess.startDrawingQuads();
-        tess.addVertexWithUV(0, height, -90, 0, 1);
-        tess.addVertexWithUV(width, height, -90, 1, 1);
-        tess.addVertexWithUV(width, 0, -90, 1, 0);
-        tess.addVertexWithUV(0, 0, -90, 0, 0);
-        tess.draw();
+		    // FPS
+		    font.drawStringWithShadow("FPS: " + mc.debug, 2, 52, 0xFFFFFF);
+		} else {
+		    this.mc.fontRenderer.drawStringWithShadow("AlphaOverhaul v0.0.1 Client Test", 2, 2, 0xFFFFFF);
+		}
+		
+		if(this.recordPlayingUpFor > 0) {
+			float var23 = (float)this.recordPlayingUpFor - var1;
+			var14 = (int)(var23 * 256.0F / 20.0F);
+			if(var14 > 255) {
+				var14 = 255;
+			}
 
-        GL11.glDepthMask(true);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glColor4f(1f, 1f, 1f, 1f);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-    }
+			if(var14 > 0) {
+				GL11.glPushMatrix();
+				GL11.glTranslatef((float)(var6 / 2), (float)(var7 - 48), 0.0F);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				var15 = Color.HSBtoRGB(var23 / 50.0F, 0.7F, 0.6F) & 16777215;
+				var8.drawString(this.recordPlaying, -var8.getStringWidth(this.recordPlaying) / 2, -4, var15 + (var14 << 24));
+				GL11.glDisable(GL11.GL_BLEND);
+				GL11.glPopMatrix();
+			}
+		}
 
-    private void renderInventorySlot(int i, int x, int y, float partialTicks) {
-        ItemStack item = mc.thePlayer.inventory.mainInventory[i];
-        if (item != null) {
-            float anim = (float) item.animationsToGo - partialTicks;
-            if (anim > 0f) {
-                GL11.glPushMatrix();
-                float scale = 1f + anim / 5f;
-                GL11.glTranslatef(x + 8, y + 12, 0f);
-                GL11.glScalef(1f / scale, (scale + 1f) / 2f, 1f);
-                GL11.glTranslatef(-(x + 8), -(y + 12), 0f);
-            }
+		byte var24 = 10;
+		boolean var26 = false;
+		if(this.mc.currentScreen instanceof GuiChat) {
+			var24 = 20;
+			var26 = true;
+		}
 
-            itemRenderer.renderItemIntoGUI(mc.fontRenderer, mc.renderEngine, item, x, y);
-            if (anim > 0f) GL11.glPopMatrix();
-            itemRenderer.renderItemOverlayIntoGUI(mc.fontRenderer, mc.renderEngine, item, x, y);
-        }
-    }
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GL11.glDisable(GL11.GL_ALPHA_TEST);
+		GL11.glPushMatrix();
+		GL11.glTranslatef(0.0F, (float)(var7 - 48), 0.0F);
 
-    public void updateTick() {
-        if (recordPlayingUpFor > 0) recordPlayingUpFor--;
-        updateCounter++;
-        for (int i = 0; i < chatMessageList.size(); i++) {
-            ((ChatLine) chatMessageList.get(i)).updateCounter++;
-        }
-    }
+		for(var15 = 0; var15 < this.chatMessageList.size() && var15 < var24; ++var15) {
+			if(((ChatLine)this.chatMessageList.get(var15)).updateCounter < 200 || var26) {
+				double var29 = (double)((ChatLine)this.chatMessageList.get(var15)).updateCounter / 200.0D;
+				var29 = 1.0D - var29;
+				var29 *= 10.0D;
+				if(var29 < 0.0D) {
+					var29 = 0.0D;
+				}
 
-    public void addChatMessage(String msg) {
-        while (mc.fontRenderer.getStringWidth(msg) > 320) {
-            int split;
-            for (split = 1; split < msg.length() && mc.fontRenderer.getStringWidth(msg.substring(0, split + 1)) <= 320; split++);
-            addChatMessage(msg.substring(0, split));
-            msg = msg.substring(split);
-        }
-        chatMessageList.add(0, new ChatLine(msg));
-        while (chatMessageList.size() > 50) chatMessageList.remove(chatMessageList.size() - 1);
-    }
+				if(var29 > 1.0D) {
+					var29 = 1.0D;
+				}
 
-    public void setRecordPlayingMessage(String msg) {
-        this.recordPlaying = "Now playing: " + msg;
-        this.recordPlayingUpFor = 60;
-    }
+				var29 *= var29;
+				int var18 = (int)(255.0D * var29);
+				if(var26) {
+					var18 = 255;
+				}
+
+				if(var18 > 0) {
+					byte var30 = 2;
+					int var20 = -var15 * 9;
+					var21 = ((ChatLine)this.chatMessageList.get(var15)).message;
+					this.drawRect(var30, var20 - 1, var30 + 320, var20 + 8, var18 / 2 << 24);
+					GL11.glEnable(GL11.GL_BLEND);
+					var8.drawStringWithShadow(var21, var30, var20, 16777215 + (var18 << 24));
+				}
+			}
+		}
+
+		GL11.glPopMatrix();
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		GL11.glDisable(GL11.GL_BLEND);
+	}
+
+	private void renderVignette(float var1, int var2, int var3) {
+		var1 = 1.0F - var1;
+		if(var1 < 0.0F) {
+			var1 = 0.0F;
+		}
+
+		if(var1 > 1.0F) {
+			var1 = 1.0F;
+		}
+
+		this.prevVignetteBrightness = (float)((double)this.prevVignetteBrightness + (double)(var1 - this.prevVignetteBrightness) * 0.01D);
+		GL11.glDisable(GL11.GL_DEPTH_TEST);
+		GL11.glDepthMask(false);
+		GL11.glBlendFunc(GL11.GL_ZERO, GL11.GL_ONE_MINUS_SRC_COLOR);
+		GL11.glColor4f(this.prevVignetteBrightness, this.prevVignetteBrightness, this.prevVignetteBrightness, 1.0F);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/misc/vignette.png"));
+		Tessellator var4 = Tessellator.instance;
+		var4.startDrawingQuads();
+		var4.addVertexWithUV(0.0D, (double)var3, -90.0D, 0.0D, 1.0D);
+		var4.addVertexWithUV((double)var2, (double)var3, -90.0D, 1.0D, 1.0D);
+		var4.addVertexWithUV((double)var2, 0.0D, -90.0D, 1.0D, 0.0D);
+		var4.addVertexWithUV(0.0D, 0.0D, -90.0D, 0.0D, 0.0D);
+		var4.draw();
+		GL11.glDepthMask(true);
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	private void renderInventorySlot(int var1, int var2, int var3, float var4) {
+		ItemStack var5 = this.mc.thePlayer.inventory.mainInventory[var1];
+		if(var5 != null) {
+			float var6 = (float)var5.animationsToGo - var4;
+			if(var6 > 0.0F) {
+				GL11.glPushMatrix();
+				float var7 = 1.0F + var6 / 5.0F;
+				GL11.glTranslatef((float)(var2 + 8), (float)(var3 + 12), 0.0F);
+				GL11.glScalef(1.0F / var7, (var7 + 1.0F) / 2.0F, 1.0F);
+				GL11.glTranslatef((float)(-(var2 + 8)), (float)(-(var3 + 12)), 0.0F);
+			}
+
+			itemRenderer.renderItemIntoGUI(this.mc.fontRenderer, this.mc.renderEngine, var5, var2, var3);
+			if(var6 > 0.0F) {
+				GL11.glPopMatrix();
+			}
+
+			itemRenderer.renderItemOverlayIntoGUI(this.mc.fontRenderer, this.mc.renderEngine, var5, var2, var3);
+		}
+	}
+
+	public void updateTick() {
+		if(this.recordPlayingUpFor > 0) {
+			--this.recordPlayingUpFor;
+		}
+
+		++this.updateCounter;
+
+		for(int var1 = 0; var1 < this.chatMessageList.size(); ++var1) {
+			++((ChatLine)this.chatMessageList.get(var1)).updateCounter;
+		}
+
+	}
+
+	public void addChatMessage(String var1) {
+		while(this.mc.fontRenderer.getStringWidth(var1) > 320) {
+			int var2;
+			for(var2 = 1; var2 < var1.length() && this.mc.fontRenderer.getStringWidth(var1.substring(0, var2 + 1)) <= 320; ++var2) {
+			}
+
+			this.addChatMessage(var1.substring(0, var2));
+			var1 = var1.substring(var2);
+		}
+
+		this.chatMessageList.add(0, new ChatLine(var1));
+
+		while(this.chatMessageList.size() > 50) {
+			this.chatMessageList.remove(this.chatMessageList.size() - 1);
+		}
+
+	}
+
+	public void setRecordPlayingMessage(String var1) {
+		this.recordPlaying = "Now playing: " + var1;
+		this.recordPlayingUpFor = 60;
+	}
 }
