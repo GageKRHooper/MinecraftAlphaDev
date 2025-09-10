@@ -159,9 +159,9 @@ public class GuiIngame extends Gui {
 		    font.drawStringWithShadow(mem, sw - font.getStringWidth(mem) - 2, 2, 0xE0E0E0);
 
 		    // Player coordinates: Will be used in singleplayer and commented out for multiplayer testing
-		    // int px = MathHelper.floor_double(mc.thePlayer.posX);
-		    //int py = MathHelper.floor_double(mc.thePlayer.posY);
-		    //int pz = MathHelper.floor_double(mc.thePlayer.posZ);
+			 int px = MathHelper.floor_double(mc.thePlayer.posX);
+		    int py = MathHelper.floor_double(mc.thePlayer.posY);
+		    int pz = MathHelper.floor_double(mc.thePlayer.posZ);
 		    //font.drawStringWithShadow("XYZ: " + px + ", " + py + ", " + pz, 2, 12, 0xFFFFFF);
 
 		    // Chunk coordinates
