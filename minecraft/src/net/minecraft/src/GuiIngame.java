@@ -158,8 +158,8 @@ public class GuiIngame extends Gui {
 		    String mem = String.format("Used memory: %d%% (%dMB) of %dMB", used * 100 / maxMem, used / 1024 / 1024, maxMem / 1024 / 1024);
 		    font.drawStringWithShadow(mem, sw - font.getStringWidth(mem) - 2, 2, 0xE0E0E0);
 
-		    // Player coordinates: Will be used in singleplayer and commented out for multiplayer testing
-			 int px = MathHelper.floor_double(mc.thePlayer.posX);
+		    // Player coordinates Commented out for Multiplayer Use
+		    int px = MathHelper.floor_double(mc.thePlayer.posX);
 		    int py = MathHelper.floor_double(mc.thePlayer.posY);
 		    int pz = MathHelper.floor_double(mc.thePlayer.posZ);
 		    //font.drawStringWithShadow("XYZ: " + px + ", " + py + ", " + pz, 2, 12, 0xFFFFFF);

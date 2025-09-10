@@ -68,7 +68,6 @@ public class GuiOptions extends GuiScreen {
         }
 
         if (button.id == 300) {
-            // Open the new Texture Pack GUI
             this.mc.displayGuiScreen(new GuiTexturePacks(this));
         }
     }

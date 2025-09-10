@@ -38,7 +38,7 @@ public class GuiInventory extends GuiContainer {
 	}
 
 	protected void drawGuiContainerForegroundLayer() {
-		this.fontRenderer.drawString("Crafting", 86, 16, 4210752);
+		this.fontRenderer.drawString("Crafting", 86, 16, 16777215);
 	}
 
 	public void drawScreen(int var1, int var2, float var3) {

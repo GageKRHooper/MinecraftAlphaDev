@@ -172,12 +172,7 @@ public class GuiTexturePacks extends GuiScreen {
                 }
             }
         }
-
-        // Always load Default pack in Minecraft
-        if (selectedIndex == 0) {
-            textureManager.restoreDefault(mc);
-        }
-    }
+}
 
     private void updateButtons() {
         controlList.removeIf(obj -> obj instanceof GuiButton && ((GuiButton) obj).id >= 500);
